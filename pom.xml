@@ -29,6 +29,11 @@
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-actuator-autoconfigure</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-mongodb</artifactId>
     </dependency>
 
@@ -75,8 +80,9 @@
           <resources>
             <env>
               <JAEGER_SERVICE_NAME>register</JAEGER_SERVICE_NAME>
-              <MONGO_HOST>mongodb</MONGO_HOST>
+              <MONGO_HOST>mongodb.payments.svc.cluster.local</MONGO_HOST>
               <SERVER_PORT>8080</SERVER_PORT>
+              <REGISTER_OPERATION>APPROVED</REGISTER_OPERATION>
             </env>
             <labels>
               <deployment>
