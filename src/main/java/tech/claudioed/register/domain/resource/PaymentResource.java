@@ -30,7 +30,7 @@ public class PaymentResource {
     try {
       final Payment payment = this.paymentService.newPayment(request);
       final UriComponents uriComponents = uriBuilder.path("api/payments/{id}").buildAndExpand(payment.getId());
-      return ResponseEntity.created(uriComponents.toUri()).build();
+      return ResponseEntity.created(uriComponents.toUri()).body(payment);
     } catch (PaymentDenied ex) {
       return ResponseEntity.unprocessableEntity().build();
     }
