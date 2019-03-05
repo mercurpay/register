@@ -18,4 +18,8 @@ public class PaymentRequest {
 
   private String customerId;
 
+  private String crmUrl;
+
+  private String orderId;
+
 }
