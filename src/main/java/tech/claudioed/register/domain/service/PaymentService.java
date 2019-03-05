@@ -3,6 +3,7 @@ package tech.claudioed.register.domain.service;
 import io.micrometer.core.instrument.Counter;
 import java.util.UUID;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import tech.claudioed.register.domain.repository.PaymentRepository;
 import tech.claudioed.register.domain.resource.data.PaymentRequest;
 
 /** @author claudioed on 2019-03-01. Project register */
+@Slf4j
 @Service
 public class PaymentService {
 
@@ -36,6 +38,7 @@ public class PaymentService {
   }
 
   public Payment newPayment(@NonNull PaymentRequest request) {
+    log.info("Registering payment {} ", request.toString());
     final Payment payment =
         Payment.builder()
             .id(UUID.randomUUID().toString())
