@@ -1,6 +1,8 @@
 package tech.claudioed.register.domain.event;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.context.ApplicationEvent;
 import tech.claudioed.register.OrderData;
 
@@ -9,6 +11,8 @@ import tech.claudioed.register.OrderData;
  * Project register
  */
 @Data
+@ToString(of = {"orderData"})
+@EqualsAndHashCode(callSuper = false)
 public class NotifyPaymentEvent extends ApplicationEvent {
 
   private final OrderData orderData;
