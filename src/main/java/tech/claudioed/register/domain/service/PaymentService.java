@@ -41,7 +41,7 @@ public class PaymentService {
       this.paymentRepository.save(payment);
     }else{
       this.paymentRepository.save(payment);
-      throw new PaymentDenied("Payment Denied");
+      throw new PaymentDenied("Payment Denied", payment);
     }
     return payment;
   }

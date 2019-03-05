@@ -26,13 +26,15 @@ public class PaymentResource {
 
   @PostMapping
   @Timed(value = "register.payment.time.seconds")
-  public ResponseEntity<Payment> newPayment(@RequestBody PaymentRequest request, UriComponentsBuilder uriBuilder) {
+  public ResponseEntity<Payment> newPayment(
+      @RequestBody PaymentRequest request, UriComponentsBuilder uriBuilder) {
     try {
       final Payment payment = this.paymentService.newPayment(request);
-      final UriComponents uriComponents = uriBuilder.path("api/payments/{id}").buildAndExpand(payment.getId());
+      final UriComponents uriComponents =
+          uriBuilder.path("api/payments/{id}").buildAndExpand(payment.getId());
       return ResponseEntity.created(uriComponents.toUri()).body(payment);
     } catch (PaymentDenied ex) {
-      return ResponseEntity.unprocessableEntity().build();
+      return ResponseEntity.unprocessableEntity().body(ex.getPayment());
     }
   }
 }
