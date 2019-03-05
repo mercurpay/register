@@ -1,5 +1,6 @@
 package tech.claudioed.register.domain.resource.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 import lombok.Data;
 
@@ -8,6 +9,7 @@ import lombok.Data;
  * Project register
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PaymentRequest {
 
   private BigDecimal value;
