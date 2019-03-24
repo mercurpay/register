@@ -43,10 +43,13 @@ public class PaymentResource {
     log.info("Request Host {}",host);
     return timer.record(() -> {
       try {
-        Thread.sleep((random.nextInt(10 - 1 + 1) + 1) * 1000);
+        log.info("Processing new register....");
+        final int waitTime = (random.nextInt(10 - 1 + 1) + 1) * 1000;
+        Thread.sleep(waitTime);
         final Payment payment = this.paymentService.newPayment(request);
         final UriComponents uriComponents =
             uriBuilder.path("api/payments/{id}").buildAndExpand(payment.getId());
+        log.info("Register processed successfully.");
         return ResponseEntity.created(uriComponents.toUri()).body(payment);
       } catch (PaymentDenied ex) {
         return ResponseEntity.unprocessableEntity().body(ex.getPayment());
