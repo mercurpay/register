@@ -2,6 +2,7 @@ package tech.claudioed.register.domain.resource;
 
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Timer;
+import java.util.Random;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,8 @@ public class PaymentResource {
 
   private final Timer timer;
 
+  private final Random random = new Random();
+
   public PaymentResource(PaymentService paymentService,
       @Qualifier("registerTimer") Timer timer) {
     this.paymentService = paymentService;
@@ -40,12 +43,15 @@ public class PaymentResource {
     log.info("Request Host {}",host);
     return timer.record(() -> {
       try {
+        Thread.sleep((random.nextInt(10 - 1 + 1) + 1) * 1000);
         final Payment payment = this.paymentService.newPayment(request);
         final UriComponents uriComponents =
             uriBuilder.path("api/payments/{id}").buildAndExpand(payment.getId());
         return ResponseEntity.created(uriComponents.toUri()).body(payment);
       } catch (PaymentDenied ex) {
         return ResponseEntity.unprocessableEntity().body(ex.getPayment());
+      } catch (InterruptedException e) {
+        return ResponseEntity.unprocessableEntity().build();
       }
     });
   }
