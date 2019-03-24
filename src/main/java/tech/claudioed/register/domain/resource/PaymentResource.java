@@ -45,6 +45,7 @@ public class PaymentResource {
       try {
         log.info("Processing new register....");
         final int waitTime = (random.nextInt(10 - 1 + 1) + 1) * 1000;
+        log.info("Time to wait {}",waitTime);
         Thread.sleep(waitTime);
         final Payment payment = this.paymentService.newPayment(request);
         final UriComponents uriComponents =
