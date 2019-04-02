@@ -1,6 +1,8 @@
 package tech.claudioed.register.domain.resource;
 
 import io.micrometer.core.annotation.Timed;
+import io.opentracing.Tracer;
+import java.util.Collections;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,8 +22,11 @@ public class PaymentResource {
 
   private final PaymentService paymentService;
 
-  public PaymentResource(PaymentService paymentService) {
+  private final Tracer tracer;
+
+  public PaymentResource(PaymentService paymentService, Tracer tracer) {
     this.paymentService = paymentService;
+    this.tracer = tracer;
   }
 
   @PostMapping
@@ -30,6 +35,7 @@ public class PaymentResource {
       @RequestBody PaymentRequest request, UriComponentsBuilder uriBuilder) {
     try {
       final Payment payment = this.paymentService.newPayment(request);
+      tracer.activeSpan().log(Collections.singletonMap("payment-id", payment.getId()));
       final UriComponents uriComponents =
           uriBuilder.path("api/payments/{id}").buildAndExpand(payment.getId());
       return ResponseEntity.created(uriComponents.toUri()).body(payment);
