@@ -55,12 +55,10 @@ public class PaymentService {
         .setValue(request.getValue().doubleValue()).setType("PURCHASE").build();
     final Transaction transaction = IssuerServiceGrpc.newBlockingStub(managedChannel)
         .requestPayment(purchase);
-
-
     final Payment payment = Payment.builder().id(UUID.randomUUID().toString())
         .requesterId(request.getRequesterId()).customerId(request.getCustomerId())
-        .value(request.getValue()).status(this.operationStatus).build();
-    if("APPROVED".equals(this.operationStatus)){
+        .value(request.getValue()).status(transaction.getStatus()).build();
+    if("APPROVED".equalsIgnoreCase(payment.getStatus())){
       paymentCounter.increment();
       this.paymentRepository.save(payment);
     }else{
