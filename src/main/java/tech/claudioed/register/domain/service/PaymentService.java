@@ -27,8 +27,6 @@ public class PaymentService {
 
   private final PaymentRepository paymentRepository;
 
-  private final String operationStatus;
-
   private final Counter paymentCounter;
 
   private final IssuerData issuerData;
@@ -36,11 +34,9 @@ public class PaymentService {
   private final VaultService vaultService;
 
   public PaymentService(PaymentRepository paymentRepository,
-      @Value("${register.operation}") String operationStatus,
       @Qualifier("paymentsCounter") Counter paymentCounter,
       IssuerData issuerData, VaultService vaultService) {
     this.paymentRepository = paymentRepository;
-    this.operationStatus = operationStatus;
     this.paymentCounter = paymentCounter;
     this.issuerData = issuerData;
     this.vaultService = vaultService;
