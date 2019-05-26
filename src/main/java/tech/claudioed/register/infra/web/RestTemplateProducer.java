@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * @author claudioed on 2019-03-05.
+ * @author claudioed on 2019-05-22.
  * Project register
  */
 @Configuration

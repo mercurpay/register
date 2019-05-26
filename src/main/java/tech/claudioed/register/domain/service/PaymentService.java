@@ -1,6 +1,11 @@
 package tech.claudioed.register.domain.service;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.micrometer.core.instrument.Counter;
+import issuer.IssuerServiceGrpc;
+import issuer.RequestPayment;
+import issuer.Transaction;
 import java.util.UUID;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +17,8 @@ import tech.claudioed.register.domain.Payment;
 import tech.claudioed.register.domain.exception.PaymentDenied;
 import tech.claudioed.register.domain.repository.PaymentRepository;
 import tech.claudioed.register.domain.resource.data.PaymentRequest;
+import tech.claudioed.register.domain.service.data.Card;
+import tech.claudioed.register.domain.service.data.Issuer;
 
 /** @author claudioed on 2019-03-01. Project register */
 @Slf4j
@@ -19,8 +26,6 @@ import tech.claudioed.register.domain.resource.data.PaymentRequest;
 public class PaymentService {
 
   private final PaymentRepository paymentRepository;
-
-  private final String operationStatus;
 
   private final Counter paymentCounter;
 
@@ -31,24 +36,40 @@ public class PaymentService {
       @Value("${register.operation}") String operationStatus,
       @Qualifier("paymentsCounter") Counter paymentCounter,
       NotifyCrmPublisher notifyCrmPublisher) {
+  private final IssuerData issuerData;
+
+  private final VaultService vaultService;
+
+  public PaymentService(PaymentRepository paymentRepository,
+      @Qualifier("paymentsCounter") Counter paymentCounter,
+      IssuerData issuerData, VaultService vaultService) {
     this.paymentRepository = paymentRepository;
-    this.operationStatus = operationStatus;
     this.paymentCounter = paymentCounter;
     this.notifyCrmPublisher = notifyCrmPublisher;
+    this.issuerData = issuerData;
+    this.vaultService = vaultService;
   }
 
   public Payment newPayment(@NonNull PaymentRequest request) {
     log.info("Registering payment {} ", request.toString());
+    final Card card = this.vaultService.token(request.getToken());
+    final Issuer issuer = this.issuerData.find(card.getIssuer());
+    final ManagedChannel managedChannel = ManagedChannelBuilder.forAddress(issuer.getUrl(), issuer.getPort())
+        .usePlaintext().build();
+    final RequestPayment purchase = RequestPayment.newBuilder().setToken(request.getToken())
+        .setValue(request.getValue().doubleValue()).setType("PURCHASE").build();
+    final Transaction transaction = IssuerServiceGrpc.newBlockingStub(managedChannel)
+        .requestPayment(purchase);
     final Payment payment =
         Payment.builder()
             .id(UUID.randomUUID().toString())
             .requesterId(request.getRequesterId())
             .customerId(request.getCustomerId())
             .value(request.getValue())
-            .status(this.operationStatus)
+            .status(transaction.getStatus())
             .orderId(request.getOrderId())
             .build();
-    if ("APPROVED".equals(this.operationStatus)) {
+    if ("APPROVED".equalsIgnoreCase(payment.getStatus())) {
       paymentCounter.increment();
       this.paymentRepository.save(payment);
     } else {

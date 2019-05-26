@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "issuer";
+option java_outer_classname = "Issuer";
+option objc_class_prefix = "ISS";
+
+package vault;
+
+service IssuerService {
+  rpc requestPayment (RequestPayment) returns (Transaction) {}
+  rpc requestCard (RequestCard) returns (Account) {}
+  rpc requestCharge(RequestCharge) returns (CardBalance){}
+}
+
+message RequestPayment {
+  string token = 1;
+  double value = 2;
+  string type = 3;
+}
+
+message Transaction {
+  string id = 1;
+  string status = 2;
+}
+
+message RequestCard {
+  string card = 1;
+  string customer = 2;
+  string issuer = 3;
+  double balance = 4;
+}
+
+message Account {
+  string id = 1;
+}
+
+message RequestCharge {
+  string token = 1;
+  double value = 2;
+}
+
+message CardBalance {
+  string token = 1;
+  double balance = 2;
+}
