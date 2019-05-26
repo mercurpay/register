@@ -10,10 +10,10 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>tech.claudioed</groupId>
-  <artifactId>register</artifactId>
+  <artifactId>acquirer</artifactId>
   <version>0.0.3-SNAPSHOT</version>
-  <name>register</name>
-  <description>Register Payments Requests</description>
+  <name>acquirer</name>
+  <description>Acquirer Payments Requests</description>
 
   <properties>
     <java.version>1.8</java.version>
@@ -88,7 +88,7 @@
 
   <build>
 
-    <finalName>register</finalName>
+    <finalName>acquirer</finalName>
 
     <extensions>
       <extension>
@@ -112,7 +112,7 @@
         <configuration>
           <resources>
             <env>
-              <JAEGER_SERVICE_NAME>register</JAEGER_SERVICE_NAME>
+              <JAEGER_SERVICE_NAME>acquirer</JAEGER_SERVICE_NAME>
               <MONGO_HOST>mongodb.payments.svc.cluster.local</MONGO_HOST>
               <SERVER_PORT>8080</SERVER_PORT>
               <REGISTER_OPERATION>APPROVED</REGISTER_OPERATION>
