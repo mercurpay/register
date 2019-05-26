@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import tech.claudioed.register.domain.Payment;
 import tech.claudioed.register.domain.event.NotifyPaymentEvent;
+import tech.claudioed.register.domain.service.data.Crm;
 import tech.claudioed.register.domain.service.data.EventRequest;
 import tech.claudioed.register.domain.service.data.PaymentCallback;
 
@@ -23,10 +24,13 @@ public class NotifyCrmListener implements ApplicationListener<NotifyPaymentEvent
 
   private final ObjectMapper objectMapper;
 
+  private final CrmData crmData;
+
   public NotifyCrmListener(RestTemplate restTemplate,
-      ObjectMapper objectMapper) {
+      ObjectMapper objectMapper, CrmData crmData) {
     this.restTemplate = restTemplate;
     this.objectMapper = objectMapper;
+    this.crmData = crmData;
   }
 
   @Override
@@ -38,8 +42,9 @@ public class NotifyCrmListener implements ApplicationListener<NotifyPaymentEvent
         .value(payment.getValue()).build();
     final Map<String,Object> data = this.objectMapper.convertValue(paymentCallback, Map.class);
     final EventRequest eventRequest = EventRequest.builder().type(payment.getStatus()).data(data).build();
-    final String path = event.getOrderData().getCrmUrl() + "api/orders/{id}/events";
-    log.info("Target url {}",path);
+    final Crm crm = this.crmData.find(event.getOrderData().getCrmId());
+    final String path = crm.crmSvcHttp() + "api/orders/{id}/events";
+    log.info("Target url {} for crmId {}",path,crm.getId());
     this.restTemplate.postForEntity(path,eventRequest,String.class,payment.getOrderId());
   }
 

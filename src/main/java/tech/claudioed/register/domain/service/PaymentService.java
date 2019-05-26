@@ -31,18 +31,15 @@ public class PaymentService {
 
   private final NotifyCrmPublisher notifyCrmPublisher;
 
-  public PaymentService(
-      PaymentRepository paymentRepository,
-      @Value("${register.operation}") String operationStatus,
-      @Qualifier("paymentsCounter") Counter paymentCounter,
-      NotifyCrmPublisher notifyCrmPublisher) {
   private final IssuerData issuerData;
 
   private final VaultService vaultService;
 
-  public PaymentService(PaymentRepository paymentRepository,
+  public PaymentService(
+      PaymentRepository paymentRepository,
+      @Value("${register.operation}") String operationStatus,
       @Qualifier("paymentsCounter") Counter paymentCounter,
-      IssuerData issuerData, VaultService vaultService) {
+      NotifyCrmPublisher notifyCrmPublisher,IssuerData issuerData, VaultService vaultService) {
     this.paymentRepository = paymentRepository;
     this.paymentCounter = paymentCounter;
     this.notifyCrmPublisher = notifyCrmPublisher;
@@ -77,7 +74,7 @@ public class PaymentService {
       throw new PaymentDenied("Payment Denied", payment);
     }
     this.notifyCrmPublisher.publish(
-        OrderData.builder().payment(payment).crmUrl(request.getCrmUrl()).build());
+        OrderData.builder().payment(payment).crmId(request.getCrmId()).build());
     return payment;
   }
 }

@@ -1,6 +1,7 @@
 package tech.claudioed.register.domain.exception;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import tech.claudioed.register.domain.Payment;
 
 /**
@@ -8,6 +9,7 @@ import tech.claudioed.register.domain.Payment;
  * Project register
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class PaymentDenied extends RuntimeException {
 
   private final Payment payment;

@@ -2,10 +2,10 @@ package tech.claudioed.register.domain.resource;
 
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Timer;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import io.opentracing.Tracer;
 import java.util.Collections;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,11 +29,10 @@ public class PaymentResource {
 
   private final Tracer tracer;
 
-  public PaymentResource(PaymentService paymentService, Tracer tracer) {
   private final Timer timer;
 
   public PaymentResource(PaymentService paymentService,
-      @Qualifier("registerTimer") Timer timer) {
+      @Qualifier("registerTimer") Timer timer,Tracer tracer) {
     this.paymentService = paymentService;
     this.timer = timer;
     this.tracer = tracer;

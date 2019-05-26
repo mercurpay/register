@@ -14,12 +14,11 @@ public class OrderData {
 
   private final Payment payment;
 
-  private final String crmUrl;
+  private final String crmId;
 
-  public OrderData(Payment payment, String crmUrl) {
+  public OrderData(Payment payment, String crmId) {
     this.payment = payment;
-    this.crmUrl = crmUrl;
+    this.crmId = crmId;
   }
-
 
 }
