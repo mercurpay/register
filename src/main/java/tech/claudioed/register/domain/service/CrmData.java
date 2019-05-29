@@ -28,7 +28,7 @@ public class CrmData {
   }
 
   public Crm find(String id){
-    final String svcUrl = this.crmDataUrl + ":" + this.crmDataUrl + "/api/crms/" + id;
+    final String svcUrl = this.crmDataUrl + ":" + this.crmDataPort + "/api/crms/" + id;
     log.info("CRM Data SVC URL {}",svcUrl);
     final ResponseEntity<Crm> entity = this.restTemplate.getForEntity(svcUrl, Crm.class);
     return entity.getBody();
