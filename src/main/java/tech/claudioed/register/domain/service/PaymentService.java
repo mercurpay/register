@@ -10,7 +10,6 @@ import java.util.UUID;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tech.claudioed.register.OrderData;
 import tech.claudioed.register.domain.Payment;
@@ -37,7 +36,6 @@ public class PaymentService {
 
   public PaymentService(
       PaymentRepository paymentRepository,
-      @Value("${register.operation}") String operationStatus,
       @Qualifier("paymentsCounter") Counter paymentCounter,
       NotifyCrmPublisher notifyCrmPublisher,IssuerData issuerData, VaultService vaultService) {
     this.paymentRepository = paymentRepository;

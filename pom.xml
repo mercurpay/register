@@ -11,7 +11,7 @@
   </parent>
   <groupId>tech.claudioed</groupId>
   <artifactId>acquirer</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.1-SNAPSHOT</version>
   <name>acquirer</name>
   <description>Acquirer Payments Requests</description>
 
