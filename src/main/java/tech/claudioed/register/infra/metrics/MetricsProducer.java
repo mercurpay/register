@@ -13,14 +13,29 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MetricsProducer {
 
-  @Bean("paymentsCounter")
-  public Counter paymentCounter(PrometheusMeterRegistry registry){
-    return registry.counter("register.payment.total", "prod","business");
+  @Bean("approvedPaymentsCounter")
+  public Counter approvedPaymentCounter(PrometheusMeterRegistry registry){
+    return registry.counter("register_payment", "prod","business","status","approved");
+  }
+
+  @Bean("deniedPaymentsCounter")
+  public Counter deniedPaymentCounter(PrometheusMeterRegistry registry){
+    return registry.counter("register_payment", "prod","business","status","denied");
   }
 
   @Bean("registerTimer")
   public Timer registerTimer(PrometheusMeterRegistry registry){
-    return registry.timer("register.payment", "type","infra");
+    return registry.timer("register_payment", "type","infra");
+  }
+
+  @Bean("vaultTimer")
+  public Timer vaultTimer(PrometheusMeterRegistry registry){
+    return registry.timer("vault", "type","infra","operation","detoken");
+  }
+
+  @Bean("crmTimer")
+  public Timer crmTimer(PrometheusMeterRegistry registry){
+    return registry.timer("crm", "type","infra","operation","notify-payment");
   }
 
 }

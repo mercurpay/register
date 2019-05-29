@@ -6,7 +6,6 @@ import io.micrometer.core.instrument.Counter;
 import issuer.IssuerServiceGrpc;
 import issuer.RequestPayment;
 import issuer.Transaction;
-import java.util.UUID;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,6 +18,8 @@ import tech.claudioed.register.domain.resource.data.PaymentRequest;
 import tech.claudioed.register.domain.service.data.Card;
 import tech.claudioed.register.domain.service.data.Issuer;
 
+import java.util.UUID;
+
 /** @author claudioed on 2019-03-01. Project register */
 @Slf4j
 @Service
@@ -26,20 +27,24 @@ public class PaymentService {
 
   private final PaymentRepository paymentRepository;
 
-  private final Counter paymentCounter;
-
   private final NotifyCrmPublisher notifyCrmPublisher;
 
   private final IssuerData issuerData;
 
   private final VaultService vaultService;
 
+  private final Counter deniedPaymentsCounter;
+
+  private final Counter approvedPaymentCounter;
+
   public PaymentService(
-      PaymentRepository paymentRepository,
-      @Qualifier("paymentsCounter") Counter paymentCounter,
-      NotifyCrmPublisher notifyCrmPublisher,IssuerData issuerData, VaultService vaultService) {
+          PaymentRepository paymentRepository,
+          @Qualifier("deniedPaymentsCounter") Counter deniedPaymentsCounter,
+          @Qualifier("approvedPaymentsCounter") Counter approvedPaymentCounter,
+          NotifyCrmPublisher notifyCrmPublisher, IssuerData issuerData, VaultService vaultService ) {
     this.paymentRepository = paymentRepository;
-    this.paymentCounter = paymentCounter;
+    this.deniedPaymentsCounter = deniedPaymentsCounter;
+    this.approvedPaymentCounter = approvedPaymentCounter;
     this.notifyCrmPublisher = notifyCrmPublisher;
     this.issuerData = issuerData;
     this.vaultService = vaultService;
@@ -65,9 +70,10 @@ public class PaymentService {
             .orderId(request.getOrderId())
             .build();
     if ("APPROVED".equalsIgnoreCase(payment.getStatus())) {
-      paymentCounter.increment();
+      this.approvedPaymentCounter.increment();
       this.paymentRepository.save(payment);
     } else {
+      this.deniedPaymentsCounter.increment();
       this.paymentRepository.save(payment);
       throw new PaymentDenied("Payment Denied", payment);
     }

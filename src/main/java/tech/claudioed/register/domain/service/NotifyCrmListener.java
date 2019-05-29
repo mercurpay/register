@@ -2,7 +2,10 @@ package tech.claudioed.register.domain.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
+
+import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -26,11 +29,15 @@ public class NotifyCrmListener implements ApplicationListener<NotifyPaymentEvent
 
   private final CrmData crmData;
 
+  private final Timer crmTimer;
+
   public NotifyCrmListener(RestTemplate restTemplate,
-      ObjectMapper objectMapper, CrmData crmData) {
+                           ObjectMapper objectMapper, CrmData crmData,
+                           @Qualifier("crmTimer") Timer crmTimer) {
     this.restTemplate = restTemplate;
     this.objectMapper = objectMapper;
     this.crmData = crmData;
+    this.crmTimer = crmTimer;
   }
 
   @Override
@@ -45,7 +52,7 @@ public class NotifyCrmListener implements ApplicationListener<NotifyPaymentEvent
     final Crm crm = this.crmData.find(event.getOrderData().getCrmId());
     final String path = crm.crmSvcHttp() + "api/orders/{id}/events";
     log.info("Target url {} for crmId {}",path,crm.getId());
-    this.restTemplate.postForEntity(path,eventRequest,String.class,payment.getOrderId());
+    this.crmTimer.record(() -> this.restTemplate.postForEntity(path,eventRequest,String.class,payment.getOrderId()));
   }
 
 }
