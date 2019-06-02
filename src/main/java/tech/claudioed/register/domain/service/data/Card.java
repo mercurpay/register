@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tech.claudioed.register.infra.card.CardMask;
 
 @Data
 @Builder
@@ -16,5 +17,9 @@ public class Card {
   private String customer;
 
   private String issuer;
+
+  public String cardData(){
+    return CardMask.maskCreditCard(this.card);
+  }
 
 }

@@ -1,10 +1,13 @@
 package tech.claudioed.register.infra.metrics;
 
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
+import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 /**
  * @author claudioed on 2019-03-02.
@@ -36,6 +39,14 @@ public class MetricsProducer {
   @Bean("crmTimer")
   public Timer crmTimer(PrometheusMeterRegistry registry){
     return registry.timer("crm", "type","infra","operation","notify-payment");
+  }
+
+  @Bean
+  MeterRegistryCustomizer<MeterRegistry> registerCommonTags(Environment environment) {
+    final String applicationName = environment.getProperty("spring.application.name");
+    return registry -> registry.config().commonTags(
+        "app_name", applicationName)
+        .namingConvention(new MetricsNamingConvention(applicationName));
   }
 
 }
