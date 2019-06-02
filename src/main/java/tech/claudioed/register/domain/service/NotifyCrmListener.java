@@ -1,6 +1,8 @@
 package tech.claudioed.register.domain.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
 import java.util.Map;
 
 import io.micrometer.core.instrument.Timer;
@@ -31,13 +33,17 @@ public class NotifyCrmListener implements ApplicationListener<NotifyPaymentEvent
 
   private final Timer crmTimer;
 
+  private final Tracer tracer;
+
+
   public NotifyCrmListener(RestTemplate restTemplate,
-                           ObjectMapper objectMapper, CrmData crmData,
-                           @Qualifier("crmTimer") Timer crmTimer) {
+      ObjectMapper objectMapper, CrmData crmData,
+      @Qualifier("crmTimer") Timer crmTimer, Tracer tracer) {
     this.restTemplate = restTemplate;
     this.objectMapper = objectMapper;
     this.crmData = crmData;
     this.crmTimer = crmTimer;
+    this.tracer = tracer;
   }
 
   @Override
@@ -49,10 +55,27 @@ public class NotifyCrmListener implements ApplicationListener<NotifyPaymentEvent
         .value(payment.getValue()).build();
     final Map<String,Object> data = this.objectMapper.convertValue(paymentCallback, Map.class);
     final EventRequest eventRequest = EventRequest.builder().type(payment.getStatus()).data(data).build();
+    Span findCrmSpan =
+        tracer
+            .buildSpan("find-crm-data")
+            .asChildOf(this.tracer.activeSpan())
+            .start()
+            .setTag("crm-id", event.getOrderData().getCrmId());
     final Crm crm = this.crmData.find(event.getOrderData().getCrmId());
+    findCrmSpan.finish();
+
     final String path = crm.crmSvcHttp() + "api/orders/{id}/events";
     log.info("Target url {} for crmId {}",path,crm.getId());
-    this.crmTimer.record(() -> this.restTemplate.postForEntity(path,eventRequest,String.class,payment.getOrderId()));
+    this.crmTimer.record(() -> {
+      Span notifyCrmSpan =
+          tracer
+              .buildSpan("notify-crm")
+              .asChildOf(this.tracer.activeSpan())
+              .start()
+              .setTag("crm-id", event.getOrderData().getCrmId());
+      this.restTemplate.postForEntity(path,eventRequest,String.class,payment.getOrderId());
+      notifyCrmSpan.finish();
+    });
   }
 
 }

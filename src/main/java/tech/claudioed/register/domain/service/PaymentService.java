@@ -81,6 +81,7 @@ public class PaymentService {
               .usePlaintext()
               .build();
       issuerSpan.finish();
+      Span callPaymentSpan = tracer.buildSpan("issuer-payment").asChildOf(paymentSpan).start().setTag("type","PURCHASE");
       final RequestPayment purchase =
           RequestPayment.newBuilder()
               .setToken(request.getToken())
@@ -89,6 +90,7 @@ public class PaymentService {
               .build();
       final Transaction transaction =
           IssuerServiceGrpc.newBlockingStub(managedChannel).requestPayment(purchase);
+      callPaymentSpan.finish();
       final Payment payment =
           Payment.builder()
               .id(UUID.randomUUID().toString())
@@ -106,8 +108,7 @@ public class PaymentService {
         this.paymentRepository.save(payment);
         throw new PaymentDenied("Payment Denied", payment);
       }
-      this.notifyCrmPublisher.publish(
-          OrderData.builder().payment(payment).crmId(request.getCrmId()).build());
+      this.notifyCrmPublisher.publish(OrderData.builder().payment(payment).crmId(request.getCrmId()).build());
       paymentSpan.finish();
       return payment;
     }
